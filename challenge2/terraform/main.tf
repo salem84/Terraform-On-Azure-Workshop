@@ -26,7 +26,15 @@ resource "azurerm_sql_server" "db_server" {
   administrator_login          = var.db_user
   administrator_login_password = var.db_password
 }
-	
+
+resource "azurerm_sql_firewall_rule" "db_server_fw" {
+  name                = "AllowAccessAzureService"
+  resource_group_name = azurerm_resource_group.challenge.name
+  server_name         = azurerm_sql_server.db_server.name
+  start_ip_address    = "0.0.0.0"
+  end_ip_address      = "0.0.0.0"
+}
+
 resource "azurerm_sql_database" "db_instance" {
   name                = "${var.prefix}-db"
   location            = azurerm_resource_group.challenge.location
