@@ -1,0 +1,82 @@
+name: Terraform Challenge 1
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+
+  terraform:
+    runs-on: ubuntu-latest
+    env:
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      
+    defaults: 
+      run:
+        working-directory: ./Deploy/Infrastructure
+      
+    steps: 
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+
+    - name: Terraform Init
+      run: terraform init
+      
+    - name: Terraform Validate
+      run: terraform validate
+    
+    - name: Terraform Plan
+      run: terraform plan -out tfplan
+    
+    - name: Terraform Apply
+      run: terraform apply -auto-approve tfplan
+  
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/checkout@master
+
+    - uses: azure/login@v1
+      with:
+        creds: '${{ secrets.AZURE_CREDENTIALS }}'
+
+    - name: Use Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: 10.15.3
+
+    - name: Install dependencies in client app
+      working-directory: Source/Tailwind.Traders.Web/ClientApp
+      run: npm install
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 2.1.400
+
+    - name: Build with dotnet
+      working-directory: Source/Tailwind.Traders.Web
+      run: dotnet build --configuration Release
+
+    - name: dotnet publish
+      working-directory: Source/Tailwind.Traders.Web
+      run: |
+        dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/Source/Tailwind.Traders.Web
+        
+    - name: Run Azure webapp deploy action
+      uses: azure/webapps-deploy@v1
+      with:
+        app-name: ${{ secrets.WEBAPP_APPSERVICE_NAME }}
+        package: ${{env.DOTNET_ROOT}}/Source/Tailwind.Traders.Web
+        
+    - name: Azure logout
+      run: |
+        az logout
