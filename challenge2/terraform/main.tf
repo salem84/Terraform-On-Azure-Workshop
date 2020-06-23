@@ -77,8 +77,8 @@ resource "azurerm_app_service" "challenge" {
 
   app_settings = {
     "WEBSITE_NODE_DEFAULT_VERSION" = "10.15.2",
-    "ApiUrl" = "",
-    "ApiUrlShoppingCart" = "",
+    "ApiUrl" = "/api/v1",
+    "ApiUrlShoppingCart" = "/api/v1",
     "MongoConnectionString" = "mongodb://${var.db_user}:${var.db_password}@${azurerm_container_group.mongo_aci.fqdn}:27017",
     "SqlConnectionString" = "Server=tcp:${azurerm_sql_server.db_server.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_sql_database.db_instance.name};Persist Security Info=False;User ID=${var.db_user};Password=${var.db_password};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
     "productImagesUrl" = "https://raw.githubusercontent.com/microsoft/TailwindTraders-Backend/master/Deploy/tailwindtraders-images/product-detail",
