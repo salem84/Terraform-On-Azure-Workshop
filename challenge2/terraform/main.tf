@@ -2,6 +2,11 @@ provider "azurerm" {
   features {}
 }
 
+resource "random_integer" "rnd" {
+  min = 100
+  max = 90000
+}
+
 resource "azurerm_resource_group" "challenge" {
   name     = "RG_${var.prefix}"
   location = "North Europe"
@@ -42,6 +47,20 @@ resource "azurerm_sql_database" "db_instance" {
   server_name         = azurerm_sql_server.db_server.name
 }
 	
+resource "azurerm_storage_account" "mongo_aci_storage" {
+  location                 = azurerm_resource_group.challenge.location
+  resource_group_name      = azurerm_resource_group.challenge.name
+  name                     = "mongoacistorage${random_integer.rnd.result}"
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+}
+
+resource "azurerm_storage_share" "mongo_aci_share" {
+  storage_account_name = azurerm_storage_account.mongo_aci_storage.name
+  name                 = "mongoacishare"
+  quota                = 1
+}
+
 
 resource "azurerm_container_group" "mongo_aci" {
   name                = "${var.prefix}-mongo-aci"
@@ -56,15 +75,26 @@ resource "azurerm_container_group" "mongo_aci" {
     image  = "mongo:latest"
     cpu    = "0.5"
     memory = "1.5"
+    # commands = ["mongod", "--dbpath=/data/mongoaz", "--bind_ip_all"]
 
     ports {
       port     = 27017
       protocol = "TCP"
     }
 
-    secure_environment_variables = {
+    environment_variables = {
       MONGO_INITDB_ROOT_USERNAME = var.db_user
       MONGO_INITDB_ROOT_PASSWORD = var.db_password
+    }
+
+    volume {
+      name       = "mongodata"
+      mount_path = "/data/db"
+      read_only  = false
+      share_name = azurerm_storage_share.mongo_aci_share.name
+
+      storage_account_name = azurerm_storage_account.mongo_aci_storage.name
+      storage_account_key  = azurerm_storage_account.mongo_aci_storage.primary_access_key
     }
   }
 }
@@ -87,6 +117,6 @@ resource "azurerm_app_service" "challenge" {
   }
 }
 
-output "fqdn" {
-  value = azurerm_container_group.mongo_aci.fqdn
-}
+# output "fqdn" {
+#   value = azurerm_container_group.mongo_aci.fqdn
+# }
