@@ -64,7 +64,7 @@ jobs:
 
     - name: Azure Deploy
       run: |
-        az webapp deployment source config --branch 'main' --name ${{ secrets.WEBAPP_CHALLENGE_3_APPSERVICE_NAME }} --repo-url https://github.com/salem84/AzureEats-Website --resource-group  ${{ secrets.WEBAPP_CHALLENGE_3_RG }}
+        az webapp deployment source config --branch 'main' --manual-integration --name 'azchallenge-3-app-service' --repo-url https://github.com/salem84/AzureEats-Website --resource-group 'RG_azchallenge-3'
         
     - name: Azure logout
       run: |
