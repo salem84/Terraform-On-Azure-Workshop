@@ -62,9 +62,9 @@ jobs:
       with:
         creds: '${{ secrets.AZURE_CREDENTIALS }}'
 
-    - name: Azure logout
+    - name: Azure Deploy
       run: |
-        az webapp deployment source config --branch 'main' --name ${{ secrets.WEBAPP_CHALLENGE_3_APPSERVICE_NAME }} --repo-url https://github.com/$GITHUB_REPOSITORY --resource-group  ${{ secrets.WEBAPP_CHALLENGE_3_RG }}
+        az webapp deployment source config --branch 'main' --name ${{ secrets.WEBAPP_CHALLENGE_3_APPSERVICE_NAME }} --repo-url https://github.com/salem84/AzureEats-Website --resource-group  ${{ secrets.WEBAPP_CHALLENGE_3_RG }}
         
     - name: Azure logout
       run: |
