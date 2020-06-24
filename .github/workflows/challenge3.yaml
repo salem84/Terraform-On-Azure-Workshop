@@ -28,8 +28,9 @@ jobs:
         creds: '${{ secrets.AZURE_CREDENTIALS }}'
 
     - name: Create Variables file
-      run: |
-        echo ${{ secrets.TFVARS_CHALLENGE_3 }} > terraform.tfvars
+      env:
+        TFVARS: {{secrets.TFVARS_CHALLENGE_3}}
+      run: 'echo "$TFVARS" > terraform.tfvars'
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
