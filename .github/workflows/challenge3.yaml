@@ -1,0 +1,62 @@
+name: Terraform Challenge 3
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+
+  terraform:
+    runs-on: ubuntu-latest
+    env:
+      ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+      
+    defaults: 
+      run:
+        working-directory: ./challenge3/terraform
+      
+    steps: 
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Create Variables file
+      run: |
+        echo ${{ secrets.TFVARS_CHALLENGE_3 }} > terraform.tfvars
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+
+    - name: Terraform Init
+      run: terraform init
+      
+    - name: Terraform Validate
+      run: terraform validate
+    
+    - name: Terraform Plan
+      run: terraform plan -out tfplan
+    
+    - name: Terraform Apply
+      run: terraform apply -auto-approve tfplan 
+  
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    needs: terraform
+    steps:
+
+    - uses: actions/checkout@master
+
+    - uses: azure/login@v1
+      with:
+        creds: '${{ secrets.AZURE_CREDENTIALS }}'
+
+    - name: Azure logout
+      run: |
+        az webapp deployment source config --branch 'main' --name ${{ secrets.WEBAPP_CHALLENGE_3_APPSERVICE_NAME }} --repo-url https://github.com/$GITHUB_REPOSITORY --resource-group  ${{ secrets.WEBAPP_CHALLENGE_3_RG }}
+        
+    - name: Azure logout
+      run: |
+        az logout
