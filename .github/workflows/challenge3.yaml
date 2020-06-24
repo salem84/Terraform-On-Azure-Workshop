@@ -23,6 +23,10 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - uses: azure/login@v1
+      with:
+        creds: '${{ secrets.AZURE_CREDENTIALS }}'
+
     - name: Create Variables file
       run: |
         echo ${{ secrets.TFVARS_CHALLENGE_3 }} > terraform.tfvars
@@ -41,6 +45,10 @@ jobs:
     
     - name: Terraform Apply
       run: terraform apply -auto-approve tfplan 
+
+    - name: Azure logout
+      run: |
+        az logout
   
   build-and-deploy:
     runs-on: ubuntu-latest
