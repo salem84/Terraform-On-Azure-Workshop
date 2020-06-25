@@ -2,8 +2,8 @@ name: Terraform Challenge 3
 
 on:
   push:
-    branches:
-      - master
+    branches-ignore:
+      - '**'
 
 jobs:
 
