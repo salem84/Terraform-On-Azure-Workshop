@@ -1,0 +1,35 @@
+global:
+  name: consul
+  datacenter: salem84
+  tls:
+    # must be enabled for federation
+    enabled: true
+    # caCert:
+    #   secretName: consul-federation
+    #   secretKey: caCert
+    # caKey:
+    #   secretName: consul-federation
+    #   secretKey: caKey
+
+  federation:
+    enabled: true
+
+  # gossipEncryption:
+  #   secretName: consul-federation
+  #   secretKey: gossipEncryptionKey
+  # acls:
+  #     manageSystemACLs: true
+  #     replicationToken:
+  #         secretName: consul-federation
+  #         secretKey: replicationToken
+
+server:
+  replicas: 1
+  bootstrapExpect: 1
+
+meshGateway:
+  enabled: true
+  replicas: 1
+
+connectInject:
+  enabled: true
