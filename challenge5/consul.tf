@@ -20,7 +20,7 @@ resource "kubernetes_service" "service_consul" {
     load_balancer_ip = azurerm_public_ip.consul_public.ip_address
     port {
       port        = 80
-      target_port = 8302 # Serf WAN port 
+      target_port = 8302 # Serf WAN port (seen from output screenshot)
     }
     type = "LoadBalancer"
   }
@@ -59,7 +59,12 @@ resource "kubernetes_secret" "consul-federation-secret" {
   }
 
   data = {
-    consul-federation = file("assets/consul-federation.yaml")
+    caCert: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    caKey: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    gossipEncryptionKey: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    replicationToken: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    serverConfigJSON: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    # consul-federation = file("assets/consul-federation.yaml")
   }
 }
 
