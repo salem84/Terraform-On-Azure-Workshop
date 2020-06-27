@@ -6,6 +6,7 @@ Consul UI (8500 - 8501)
 kubectl port-forward service/consul-server 8500:8500
 
 kubectl get secrets
+kubectl describe secrets/consul-federation
 
 kubectl get pod --selector=app=consul -o name
 kubectl get pod --selector=component=mesh-gateway -o name
